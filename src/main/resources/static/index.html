@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello</title>
+</head>
+<body>
+<div id="myalert">
+</div>
+</body>
+</html>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+    let loopTour = 0;
+    let loopTour2 = 0;
+    $(document).ready(function requeteajax(){
+        $.ajax({
+            url: "http://localhost:8082/api/v1/alarm/state",
+            method: "PUT",
+            dataType : "json",
+        })
+            .done(function(response){
+                let data = JSON.stringify(response);
+                if(loopTour===0) {
+                    createtab(response);
+                }
+                else{
+                    maketab(response);
+                }
+                loopTour++;
+            })
+            .always(function()
+        {
+            setTimeout(requeteajax, 10000);
+        })
+    });
+
+    function createtab(response){
+        let tbl = document.createElement('table');
+        tbl.id="tableaualert";
+        tbl.style.width = '300px';
+        tbl.style.border = '1px solid black';
+        console.log(tbl);
+        response.forEach((alarm) =>{
+            console.log("loop")
+            let tr = tbl.insertRow();
+            tr.id = "tralarm"+alarm.id;
+            console.log("creer tr");
+            let tdPaire = tr.insertCell();
+            tdPaire.innerHTML=alarm.symbole1+"/"+alarm.symbole2;
+            tdPaire.style.border = '1px solid black';
+            tdPaire.style.width='100px';
+            tdPaire.id="tdPaire"+alarm.id;
+            let tdValeur = tr.insertCell();
+            let operande = ">";
+            if(alarm.inferieur){
+                operande="<"
+            }
+            tdValeur.innerHTML=operande+alarm.valeur;
+            tdValeur.style.border = '1px solid black';
+            tdValeur.style.width='100px';
+            tdValeur.id="tdValeur"+alarm.id;
+            let tdOn = tr.insertCell();
+            if(alarm.on){
+                tdOn.style.backgroundColor="green";
+            }else{
+                tdOn.style.backgroundColor="red";
+            }
+            tdOn.style.border = '1px solid black';
+            tdOn.style.width='100px';
+            tdOn.id="tdOn"+alarm.id;
+            console.log(tr);
+            getPrice(alarm);
+            document.body.appendChild(tbl);
+        });
+    }
+
+        function maketab(response){
+        let tbl = document.getElementById("tableaualert");
+        response.forEach((alarm) =>{
+            let tr = document.getElementById("tralarm"+alarm.id);
+            let tdPaire = document.getElementById("tdPaire"+alarm.id);
+            tdPaire.innerHTML=alarm.symbole1+"/"+alarm.symbole2;
+            let tdValeur = document.getElementById("tdValeur"+alarm.id);
+            let operande = ">";
+            if(alarm.inferieur){
+                operande="<"
+            }
+            tdValeur.innerHTML=operande+alarm.valeur;
+            let tdOn = document.getElementById("tdOn"+alarm.id);
+            if(alarm.on){
+                tdOn.style.backgroundColor="green";
+            }else{
+                tdOn.style.backgroundColor="red";
+            }
+            getPrice(alarm);
+
+        });
+        loopTour2++;
+
+    }
+
+    function getPrice(alarm) {
+        $.ajax({
+            url: "http://localhost:8082/api/v1/binance/price/" + alarm.symbole1 + "/" + alarm.symbole2,
+            method: "GET",
+            dataType: "json",
+        })
+            .done(function (response) {
+                let data = JSON.stringify(response);
+                if(loopTour2===0){
+                    completetabpricefirst(response,alarm);
+                }
+                else{
+                    completetabprice(response,alarm);
+                }
+            })
+    }
+
+    function completetabpricefirst(response,alarm){
+        console.log("price");
+        let row = document.getElementById("tralarm"+alarm.id);
+        let cell = row.insertCell();
+        cell.id="price"+alarm.id;
+        cell.style.border = '1px solid black';
+        cell.style.width='100px';
+        cell.innerHTML=response;
+    }
+
+    function completetabprice(response,alarm){
+        console.log("price2");
+        let cell = document.getElementById("price"+alarm.id);
+        cell.innerHTML=response;
+    }
+</script>
