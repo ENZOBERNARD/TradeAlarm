@@ -11,7 +11,7 @@ public class CheckRunnerService {
     @Autowired
     AlarmService alarmService;
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 60000)
     public void reportCurrentTime() {
         alarmService.checkIfRing();
     }

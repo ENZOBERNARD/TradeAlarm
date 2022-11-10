@@ -15,7 +15,7 @@ public class BinanceService {
             BinanceApi api = new BinanceApi();
             return api.pricesMap().get(symbole1.toUpperCase()+symbole2.toUpperCase());
         } catch (BinanceApiException e) {
-            System.out.println( "ERROR: " + e.getMessage());
+            System.out.println( "ERROR Binance " );
         }
         return null;
     }
